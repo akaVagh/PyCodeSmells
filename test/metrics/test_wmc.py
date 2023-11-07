@@ -42,3 +42,29 @@ class Example:
 """
     node = ast.parse(source).body[0]
     assert weighted_methods_per_class(node) == 4  # Complex method with multiple branches
+
+
+def test_weighted_methods_empty_class():
+    source = "class Example: pass"
+    node = ast.parse(source).body[0]
+    assert weighted_methods_per_class(node) == 0  # Empty class
+
+
+def test_weighted_methods_class_with_non_method_members():
+    source = """
+class Example:
+    field = 10
+    def method(self): pass
+"""
+    node = ast.parse(source).body[0]
+    assert weighted_methods_per_class(node) == 1  # Only one simple method
+
+
+def test_weighted_methods_class_with_only_docstrings():
+    source = '''
+class Example:
+    def method(self):
+        """This is a docstring"""
+'''
+    node = ast.parse(source).body[0]
+    assert weighted_methods_per_class(node) == 1  # Method with only a docstring
