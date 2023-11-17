@@ -30,20 +30,34 @@ def process_directory(directory_path):
 
 
 def main():
+    setup_logging()
+
     parser = argparse.ArgumentParser(description="PyCodeSmells Analysis Tool")
     parser.add_argument('-i', '--input', required=True, help="Input Python file or directory for analysis")
-    parser.add_argument('-o', '--output', choices=['json', 'csv'], required=True, help="Output format")
+    parser.add_argument('-o', '--output_dir', required=True, help="Output directory for the results")
+    parser.add_argument('-f', '--format', choices=['json', 'csv'], required=True, help="Output format")
     args = parser.parse_args()
+
+    # Ensure input path exists
+    if not os.path.exists(args.input):
+        logging.error(f"Input path does not exist: {args.input}")
+        return
+
+    # Ensure output directory exists
+    if not os.path.exists(args.output_dir):
+        os.makedirs(args.output_dir, exist_ok=True)
+ ad
+    output_path = os.path.join(args.output_dir, os.path.basename(args.input) + f"_metrics.{args.format}")
 
     if os.path.isdir(args.input):
         metrics_data = process_directory(args.input)
     else:
         metrics_data = process_file(args.input)
 
-    if args.output == 'json':
-        export_to_json(metrics_data, f"{args.input}_metrics.json")
-    elif args.output == 'csv':
-        export_to_csv(metrics_data, f"{args.input}_metrics.csv")
+    if args.format == 'json':
+        export_to_json(metrics_data, output_path)
+    elif args.format == 'csv':
+        export_to_csv(metrics_data, output_path)
 
 
 if __name__ == "__main__":
