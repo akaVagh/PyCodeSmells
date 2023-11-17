@@ -46,7 +46,7 @@ def main():
     # Ensure output directory exists
     if not os.path.exists(args.output_dir):
         os.makedirs(args.output_dir, exist_ok=True)
- ad
+
     output_path = os.path.join(args.output_dir, os.path.basename(args.input) + f"_metrics.{args.format}")
 
     if os.path.isdir(args.input):
