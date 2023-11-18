@@ -28,7 +28,7 @@ def standardize_data_for_csv(metrics_data, headers_order):
 def export_to_csv(metrics_data, output_file):
     """Export metrics data to a CSV file."""
     headers_order = ["type", "name", "loc", "number_of_fields", "number_of_methods",
-                     "wmc", "cyclomatic_complexity", "parameter_count"]
+                     "wmc", "cyclomatic_complexity", "parameter_count", "lcom3"]
 
     standardized_data = standardize_data_for_csv(metrics_data, headers_order)
 

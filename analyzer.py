@@ -2,7 +2,7 @@ import ast
 import logging
 from metrics import cc, loc, nof, nom, pc, wmc
 from log_config import setup_logging
-from concurrent.futures import ThreadPoolExecutor
+from metrics.lcom3 import calculate_lcom3
 
 setup_logging()
 
@@ -15,7 +15,8 @@ def analyze_node(node):
             'number_of_fields': nof.number_of_fields(node),
             'number_of_methods': nom.number_of_methods(node),
             'wmc': wmc.weighted_methods_per_class(node),
-            'loc': loc.class_loc(node)
+            'loc': loc.class_loc(node),
+            'lcom3': calculate_lcom3(node)
         }
     elif isinstance(node, ast.FunctionDef):
         return {
@@ -35,12 +36,10 @@ def analyze_code(file_path):
             node = ast.parse(file.read())
 
         metrics_data = []
-        with ThreadPoolExecutor() as executor:
-            future_to_node = {executor.submit(analyze_node, n): n for n in ast.walk(node)}
-            for future in future_to_node:
-                result = future.result()
-                if result:
-                    metrics_data.append(result)
+        for n in ast.walk(node):
+            result = analyze_node(n)
+            if result:
+                metrics_data.append(result)
 
         logging.info("Successfully completed analysis")
         return metrics_data
