@@ -2,8 +2,31 @@ import ast
 import logging
 from metrics import cc, loc, nof, nom, pc, wmc
 from log_config import setup_logging
+from metrics.lcom3 import calculate_lcom3
 
 setup_logging()
+
+
+def analyze_node(node):
+    if isinstance(node, ast.ClassDef):
+        return {
+            'type': 'class',
+            'name': node.name,
+            'number_of_fields': nof.number_of_fields(node),
+            'number_of_methods': nom.number_of_methods(node),
+            'wmc': wmc.weighted_methods_per_class(node),
+            'loc': loc.class_loc(node),
+            'lcom3': calculate_lcom3(node)
+        }
+    elif isinstance(node, ast.FunctionDef):
+        return {
+            'type': 'function',
+            'name': node.name,
+            'cyclomatic_complexity': cc.cyclomatic_complexity(node),
+            'parameter_count': pc.parameter_count(node),
+            'loc': loc.method_loc(node)
+        }
+    return None
 
 
 def analyze_code(file_path):
@@ -13,28 +36,11 @@ def analyze_code(file_path):
             node = ast.parse(file.read())
 
         metrics_data = []
-        # Your existing analysis logic...
-        for class_node in [n for n in ast.walk(node) if isinstance(n, ast.ClassDef)]:
-            class_metrics = {
-                'type': 'class',
-                'name': class_node.name,
-                'number_of_fields': nof.number_of_fields(class_node),
-                'number_of_methods': nom.number_of_methods(class_node),
-                'wmc': wmc.weighted_methods_per_class(class_node),
-                'loc': loc.class_loc(class_node)
-            }
-            metrics_data.append(class_metrics)
+        for n in ast.walk(node):
+            result = analyze_node(n)
+            if result:
+                metrics_data.append(result)
 
-        # Analyze each function/method in the file
-        for func_node in [n for n in ast.walk(node) if isinstance(n, ast.FunctionDef)]:
-            function_metrics = {
-                'type': 'function',
-                'name': func_node.name,
-                'cyclomatic_complexity': cc.cyclomatic_complexity(func_node),
-                'parameter_count': pc.parameter_count(func_node),
-                'loc': loc.method_loc(func_node)
-            }
-            metrics_data.append(function_metrics)
         logging.info("Successfully completed analysis")
         return metrics_data
 

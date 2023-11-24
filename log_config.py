@@ -1,13 +1,29 @@
 import logging
-from logging.handlers import RotatingFileHandler
+import os
+import datetime
 
 
-def setup_logging(log_file='app.log', level=logging.INFO, max_size=10485760, backup_count=3):
-    """Setup logging configuration."""
-    handler = RotatingFileHandler(log_file, maxBytes=max_size, backupCount=backup_count)
-    formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(name)s - %(message)s', '%Y-%m-%d %H:%M:%S')
-    handler.setFormatter(formatter)
+def setup_logging(log_directory="logs"):
+    # Create a directory for logs if it does not exist
+    if not os.path.exists(log_directory):
+        os.makedirs(log_directory)
 
-    logger = logging.getLogger()
-    logger.setLevel(level)
-    logger.addHandler(handler)
+    # Generate a log file name with a timestamp
+    timestamp = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
+    log_filename = os.path.join(log_directory, f"log_{timestamp}.log")
+
+    # Set up logging configuration
+    logging.basicConfig(
+        filename=log_filename,
+        level=logging.DEBUG,
+        format='%(asctime)s - %(levelname)s - [%(filename)s:%(lineno)d] - %(message)s',
+        datefmt='%Y-%m-%d %H:%M:%S'
+    )
+
+
+# Call this at the start of your script
+setup_logging()
+
+# Example usage
+logging.debug("This is a debug message")
+logging.info("This is an informational message")
