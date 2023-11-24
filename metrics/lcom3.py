@@ -2,6 +2,7 @@ import ast
 import logging
 
 from collections import defaultdict
+
 from log_config import setup_logging
 
 # Configure logging
@@ -41,7 +42,7 @@ class LCOM3Calculator:
                 self.method_fields[method_name] = {
                     sub_node.attr for sub_node in ast.walk(node)
                     if isinstance(sub_node, ast.Attribute) and isinstance(sub_node.value, ast.Name)
-                       and sub_node.value.id == 'self' and sub_node.attr in self.fields
+                    and sub_node.value.id == 'self' and sub_node.attr in self.fields
                 }
                 logging.debug(f"Method {method_name} accesses fields: {self.method_fields[method_name]}")
 
